@@ -93,6 +93,13 @@ object ScreenAnalyzer {
             }
         }, handler)
 
+        val callback = object : MediaProjection.Callback() {
+            override fun onStop() {
+                channel.close()
+            }
+        }
+        mediaProjection.registerCallback(callback, handler)
+
         val display = mediaProjection.createVirtualDisplay(
             "elk-screen",
             CAPTURE_WIDTH,
@@ -105,6 +112,7 @@ object ScreenAnalyzer {
         )
 
         awaitClose {
+            mediaProjection.unregisterCallback(callback)
             display.release()
             reader.close()
             handlerThread.quit()
